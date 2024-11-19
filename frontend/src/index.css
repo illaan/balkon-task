@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* body {
+	@apply flex items-center justify-center m-0 min-h-screen min-w-[320px];
+}
+
+html {
+	@apply max-w-full mx-auto p-8 text-center;
+} */
