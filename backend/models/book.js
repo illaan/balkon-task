@@ -5,35 +5,46 @@ const getAllBooks = async () => {
 	return rows;
 };
 
-const getBookByIsbn = async (isbn) => {
-	const [rows] = await db.execute("SELECT * FROM books WHERE isbn = ?", [isbn]);
+const getBookById = async (id) => {
+	const [rows] = await db.execute("SELECT * FROM books WHERE id = ?", [id]);
 	return rows[0];
 };
 
 const createBook = async (book) => {
 	const { isbn, title, pages, published, image } = book;
-	await db.execute(
+	const [result] = await db.execute(
 		"INSERT INTO books (isbn, title, pages, published, image) VALUES (?, ?, ?, ?, ?)",
 		[isbn, title, pages, published, image]
 	);
+
+	return { ...book, id: result.insertId };
 };
 
-const updateBook = async (isbn, book) => {
-	const { title, pages, published, image } = book;
+const updateBook = async (id, book) => {
+	const { isbn, title, pages, published, image } = book;
 	await db.execute(
-		"UPDATE books SET title = ?, pages = ?, published = ?, image = ? WHERE isbn = ?",
-		[title, pages, published, image, isbn]
+		"UPDATE books SET isbn = ?, title = ?, pages = ?, published = ?, image = ? WHERE id = ?",
+		[isbn, title, pages, published, image, id]
 	);
 };
+2;
+const deleteBook = async (id) => {
+	await db.execute("DELETE FROM books WHERE id = ?", [id]);
+};
 
-const deleteBook = async (isbn) => {
-	await db.execute("DELETE FROM books WHERE isbn = ?", [isbn]);
+const getAuthorsForSpecificBook = async (bookId) => {
+	const [rows] = await db.execute("SELECT authors FROM books WHERE id = ?", [
+		bookId,
+	]);
+	if (rows.length === 0) return [];
+	return JSON.parse(rows[0].authors);
 };
 
 module.exports = {
 	getAllBooks,
-	getBookByIsbn,
+	getBookById,
 	createBook,
 	updateBook,
 	deleteBook,
+	getAuthorsForSpecificBook,
 };

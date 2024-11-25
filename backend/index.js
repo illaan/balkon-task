@@ -7,8 +7,8 @@ const app = express();
 
 const corsOptions = {
 	origin: "http://localhost:5173", // Only allow requests from frontend on localhost:3000
-	methods: ["GET", "POST", "PUT", "DELETE"], // Allow specific HTTP methods
-	allowedHeaders: ["Content-Type", "Authorization"], // Allow specific headers
+	methods: ["GET", "POST", "PUT", "DELETE"],
+	allowedHeaders: ["Content-Type", "Authorization"],
 };
 
 app.use(cors(corsOptions));

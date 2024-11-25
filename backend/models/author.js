@@ -7,6 +7,7 @@ const getAllAuthors = async () => {
 
 const getAuthorById = async (id) => {
 	const [rows] = await db.execute("SELECT * FROM authors WHERE id = ?", [id]);
+
 	return rows[0];
 };
 
@@ -17,7 +18,7 @@ const createAuthor = async (author) => {
 		[first_name, last_name, dob, image]
 	);
 
-	return { id: result.insertId, first_name, last_name, dob, image };
+	return { ...author, id: result.insertId };
 };
 
 const updateAuthor = async (id, author) => {
@@ -32,10 +33,19 @@ const deleteAuthor = async (id) => {
 	await db.execute("DELETE FROM authors WHERE id = ?", [id]);
 };
 
+const getBooksForSpecificAuthor = async (authorId) => {
+	const [rows] = await db.execute("SELECT books FROM authors WHERE id = ?", [
+		authorId,
+	]);
+	if (rows.length === 0) return [];
+	return JSON.parse(rows[0].books);
+};
+
 module.exports = {
 	getAllAuthors,
 	getAuthorById,
 	createAuthor,
 	updateAuthor,
 	deleteAuthor,
+	getBooksForSpecificAuthor,
 };

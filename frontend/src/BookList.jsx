@@ -1,6 +1,8 @@
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashAlt, faEdit } from "@fortawesome/free-solid-svg-icons";
+import axios from "axios";
+import { useState, useEffect } from "react";
 
 const BookList = ({
 	books,
@@ -10,7 +12,7 @@ const BookList = ({
 	openAddModal,
 }) => {
 	return (
-		<div className=" p-6 w-full">
+		<div className="w-full">
 			<h2 className="text-2xl font-semibold text-gray-700 mb-4">Books</h2>
 			<table className="min-w-full table-auto border-gray-300 mb-4">
 				<thead>
@@ -26,8 +28,8 @@ const BookList = ({
 				<tbody>
 					{books.map((book) => (
 						<tr key={book.isbn} className="border-b">
-							<td className="flex items-center gap-4 px-4 py-2 text-gray-600">
-								<a
+							<td className="px-4 py-2 text-gray-600">
+								<button
 									href="#"
 									onClick={() => handleViewModal(book)}
 									className="flex items-center gap-4"
@@ -37,26 +39,23 @@ const BookList = ({
 										className="w-10 h-10 rounded-full object-cover"
 									/>
 									<span className="hover:underline">{book.title}</span>
-								</a>
+								</button>
 							</td>
 							<td className="px-4 py-2 text-gray-600">
 								<button
-									onClick={() => handleDeleteBook(book.isbn)}
+									onClick={() => handleDeleteBook(book.id)}
 									className="px-2 py-1 rounded-lg"
 								>
 									<FontAwesomeIcon
 										icon={faTrashAlt}
-										className="w-4 h-4 text-red-700"
+										className=" text-red-700"
 									/>
 								</button>
 								<button
 									onClick={() => handleEditModal(book)}
 									className="px-2 py-1 rounded-lg"
 								>
-									<FontAwesomeIcon
-										icon={faEdit}
-										className="w-4 h-4 text-gray-700"
-									/>
+									<FontAwesomeIcon icon={faEdit} className=" text-gray-700" />
 								</button>
 							</td>
 						</tr>

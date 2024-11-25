@@ -1,10 +1,12 @@
 const express = require("express");
+
 const {
 	getAllBooks,
-	getBookByIsbn,
+	getBookById,
 	createBook,
 	updateBook,
 	deleteBook,
+	getAuthorsForSpecificBook,
 } = require("../models/book");
 const router = express.Router();
 
@@ -18,95 +20,34 @@ router.post("/books", async (req, res) => {
 	res.status(201).json({ message: "Book created" });
 });
 
-router.get("/books/:isbn", async (req, res) => {
-	const book = await getBookByIsbn(req.params.isbn);
+router.get("/books/:id", async (req, res) => {
+	const book = await getBookById(req.params.id);
 	if (!book) return res.status(404).json({ message: "Book not found" });
 	res.json(book);
 });
 
-router.put("/books/:isbn", async (req, res) => {
-	await updateBook(req.params.isbn, req.body);
+router.put("/books/:id", async (req, res) => {
+	await updateBook(req.params.id, req.body);
 	res.json({ message: "Book updated" });
 });
 
-router.delete("/books/:isbn", async (req, res) => {
-	await deleteBook(req.params.isbn);
+router.delete("/books/:id", async (req, res) => {
+	await deleteBook(req.params.id);
 	res.json({ message: "Book deleted" });
 });
 
-router.get("/books/:idBook/authors", async (req, res) => {
-	const { idBook } = req.params;
+router.get("/books/:id/authors", async (req, res) => {
+	const { id } = req.params;
 
 	try {
-		const authors = await db.query(
-			`
-					SELECT a.* FROM authors a
-					JOIN book_authors ba ON a.id = ba.author_id
-					WHERE ba.book_id = ?
-			`,
-			[idBook]
-		);
-
+		const authors = await getAuthorsForSpecificBook(id);
 		if (authors.length === 0) {
-			return res
-				.status(404)
-				.json({ message: "No authors found for this book" });
+			return res.status(404).json({ error: "Book not found or no authors." });
 		}
-
-		res.status(200).json(authors);
+		res.json(authors);
 	} catch (error) {
-		res
-			.status(500)
-			.json({ message: "Error retrieving authors for book", error });
-	}
-});
-
-router.post("/books/:idBook/authors", async (req, res) => {
-	const { idBook } = req.params;
-	const { authorId } = req.body;
-
-	try {
-		// Ensure book and author exist
-		const bookExists = await db.query("SELECT * FROM books WHERE id = ?", [
-			idBook,
-		]);
-		const authorExists = await db.query("SELECT * FROM authors WHERE id = ?", [
-			authorId,
-		]);
-
-		if (!bookExists.length || !authorExists.length) {
-			return res.status(404).json({ message: "Book or author not found" });
-		}
-
-		// Link author to the book
-		await db.query(
-			"INSERT INTO book_authors (book_id, author_id) VALUES (?, ?)",
-			[idBook, authorId]
-		);
-
-		res.status(200).json({ message: "Author added to book" });
-	} catch (error) {
-		res.status(500).json({ message: "Error linking author to book", error });
-	}
-});
-
-router.delete("/books/:idBook/authors/:idAuthor", async (req, res) => {
-	const { idBook, idAuthor } = req.params;
-
-	try {
-		// Ensure the book-author relationship exists
-		const result = await db.query(
-			"DELETE FROM book_authors WHERE book_id = ? AND author_id = ?",
-			[idBook, idAuthor]
-		);
-
-		if (result.affectedRows === 0) {
-			return res.status(404).json({ message: "Relationship not found" });
-		}
-
-		res.status(200).json({ message: "Author removed from book" });
-	} catch (error) {
-		res.status(500).json({ message: "Error removing author from book", error });
+		console.error("Error:", error);
+		res.status(500).json({ error: "Internal server error." });
 	}
 });
 
